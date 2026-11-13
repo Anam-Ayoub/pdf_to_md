@@ -2,6 +2,10 @@ import sys
 import os
 import subprocess
 from pathlib import Path
+
+# Silence verbose Qt / Wayland chatter in terminal
+os.environ.setdefault("QT_LOGGING_RULES", "qt.qpa.wayland*=false;*.debug=false;qt.webenginecontext=false")
+
 import webview
 from markitdown import MarkItDown
 
@@ -18,8 +22,10 @@ class BridgeApi:
         if not self._window:
             return None
 
+        # Use new FileDialog.OPEN enum (avoids deprecation warning)
+        dialog_mode = getattr(webview.FileDialog, "OPEN", webview.OPEN_DIALOG)
         result = self._window.create_file_dialog(
-            webview.OPEN_DIALOG,
+            dialog_mode,
             file_types=('PDF Files (*.pdf)', 'All Files (*.*)')
         )
 
