@@ -84,10 +84,16 @@ class BridgeApi:
 
 def get_resource_path(relative_path: str) -> Path:
     if getattr(sys, "frozen", False):
-        base_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
-    else:
-        base_dir = Path(__file__).parent
-    return base_dir / relative_path
+        meipass = getattr(sys, "_MEIPASS", None)
+        if meipass and (Path(meipass) / relative_path).exists():
+            return Path(meipass) / relative_path
+        exe_dir = Path(sys.executable).parent
+        if (exe_dir / relative_path).exists():
+            return exe_dir / relative_path
+        if (exe_dir / "_internal" / relative_path).exists():
+            return exe_dir / "_internal" / relative_path
+        return Path(meipass or exe_dir) / relative_path
+    return Path(__file__).parent / relative_path
 
 
 def main():
