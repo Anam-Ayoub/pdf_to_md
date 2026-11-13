@@ -1,0 +1,94 @@
+import sys
+import os
+import subprocess
+from pathlib import Path
+import webview
+from markitdown import MarkItDown
+
+
+class BridgeApi:
+    def __init__(self):
+        self._window = None
+        self.last_output_path = None
+
+    def set_window(self, window):
+        self._window = window
+
+    def select_file(self):
+        if not self._window:
+            return None
+
+        result = self._window.create_file_dialog(
+            webview.OPEN_DIALOG,
+            file_types=('PDF Files (*.pdf)', 'All Files (*.*)')
+        )
+
+        if result and len(result) > 0:
+            file_path = Path(result[0])
+            if file_path.exists():
+                return {
+                    "path": str(file_path),
+                    "name": file_path.name,
+                    "size": file_path.stat().st_size
+                }
+        return None
+
+    def convert_pdf(self, file_path_str):
+        try:
+            target_path = Path(file_path_str)
+            if not target_path.exists():
+                return {"success": False, "error": f"File does not exist: {file_path_str}"}
+
+            md = MarkItDown()
+            result = md.convert(str(target_path))
+
+            out_path = target_path.with_suffix(".md")
+            out_path.write_text(result.text_content, encoding="utf-8")
+            self.last_output_path = out_path
+
+            return {
+                "success": True,
+                "output_name": out_path.name,
+                "output_path": str(out_path),
+                "chars": len(result.text_content)
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def open_folder(self, file_path_str=None):
+        target = Path(file_path_str) if file_path_str else self.last_output_path
+        if not target or not target.exists():
+            return False
+
+        folder = target.parent if target.is_file() else target
+        try:
+            if sys.platform == "win32":
+                os.startfile(str(folder))
+            elif sys.platform == "darwin":
+                subprocess.Popen(["open", str(folder)])
+            else:
+                subprocess.Popen(["xdg-open", str(folder)])
+            return True
+        except Exception:
+            return False
+
+
+def main():
+    api = BridgeApi()
+    html_path = Path(__file__).parent / "ui" / "index.html"
+
+    window = webview.create_window(
+        title="PDF to Markdown",
+        url=str(html_path.resolve()),
+        js_api=api,
+        width=540,
+        height=380,
+        resizable=False,
+        text_select=False
+    )
+    api.set_window(window)
+    webview.start(gui="qt")
+
+
+if __name__ == "__main__":
+    main()
