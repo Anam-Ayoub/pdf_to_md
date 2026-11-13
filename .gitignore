@@ -18,6 +18,8 @@ markitdown_source/
 # Distribution / packaging
 *.egg-info/
 .eggs/
+*.tar.gz
+*.zip
 
 # Conversation notes
 convo.md
