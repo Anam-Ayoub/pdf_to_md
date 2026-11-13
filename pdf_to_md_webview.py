@@ -82,9 +82,30 @@ class BridgeApi:
             return False
 
 
+def get_resource_path(relative_path: str) -> Path:
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+    else:
+        base_dir = Path(__file__).parent
+    return base_dir / relative_path
+
+
 def main():
+    if len(sys.argv) > 2 and sys.argv[1] == "--convert":
+        target = Path(sys.argv[2])
+        if not target.exists():
+            print(f"File not found: {target}")
+            sys.exit(1)
+        print(f"Converting {target} ...")
+        md = MarkItDown()
+        res = md.convert(str(target))
+        out = target.with_suffix(".md")
+        out.write_text(res.text_content, encoding="utf-8")
+        print(f"Successfully converted to {out} (length: {len(res.text_content)} characters)")
+        return
+
     api = BridgeApi()
-    html_path = Path(__file__).parent / "ui" / "index.html"
+    html_path = get_resource_path("ui/index.html")
 
     window = webview.create_window(
         title="PDF to Markdown",

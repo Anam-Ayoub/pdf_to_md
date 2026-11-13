@@ -18,3 +18,6 @@ markitdown_source/
 # Distribution / packaging
 *.egg-info/
 .eggs/
+
+# Conversation notes
+convo.md
