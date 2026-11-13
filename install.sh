@@ -33,7 +33,7 @@ else
     rm -rf "$INSTALL_DIR"
     mkdir -p "$INSTALL_DIR"
     cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
-    EXEC_CMD="$INSTALL_DIR/venv/bin/python $INSTALL_DIR/pdf_to_md.py"
+    EXEC_CMD="$INSTALL_DIR/venv/bin/python $INSTALL_DIR/pdf_to_md_webview.py"
 fi
 
 # 2. Copy Icon
