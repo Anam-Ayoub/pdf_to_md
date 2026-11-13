@@ -22,11 +22,14 @@ class BridgeApi:
         if not self._window:
             return None
 
-        # Use new FileDialog.OPEN enum (avoids deprecation warning)
+        # Start from user's home directory and strictly show PDF files only
+        home_dir = str(Path.home())
         dialog_mode = getattr(webview.FileDialog, "OPEN", webview.OPEN_DIALOG)
+
         result = self._window.create_file_dialog(
             dialog_mode,
-            file_types=('PDF Files (*.pdf)', 'All Files (*.*)')
+            directory=home_dir,
+            file_types=('PDF Files (*.pdf)',)
         )
 
         if result and len(result) > 0:
@@ -88,9 +91,10 @@ def main():
         url=str(html_path.resolve()),
         js_api=api,
         width=540,
-        height=380,
+        height=400,
         resizable=False,
-        text_select=False
+        text_select=False,
+        background_color="#f7f5f0"
     )
     api.set_window(window)
     webview.start(gui="qt")
