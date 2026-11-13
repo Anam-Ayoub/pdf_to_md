@@ -1,0 +1,20 @@
+# Environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller builds
+build/
+dist/
+
+# Cloned upstream source
+markitdown_source/
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
